@@ -11,9 +11,15 @@
 
 # リポジトリをPublicにすることが多いのでAssets 以下は全て除外
 Assets/*
-# ただし MyAssets フォルダは除外しない（追跡する）
+# ただし以下のフォルダは除外しない（追跡する）
 !Assets/MyAssets/
 !Assets/MyAssets/**
+
+!Assets/Scenes/
+!Assets/Scenes/**
+
+!Assets/Settings/
+!Assets/Settings/**
 
 # Unityクラウドビルドなどのキャッシュ
 sysinfo.txt
