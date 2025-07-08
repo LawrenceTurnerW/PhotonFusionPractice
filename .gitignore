@@ -1,0 +1,73 @@
+#この.gitignoreファイルは https://github.com/github/gitignore/blob/main/Unity.gitignore を参考に改変を行ったものです。
+
+＃フォルダごと無視する
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# リポジトリをPublicにすることが多いのでAssets 以下は全て除外
+Assets/*
+# ただし MyAssets フォルダは除外しない（追跡する）
+!Assets/MyAssets/
+!Assets/MyAssets/**
+
+# Unityクラウドビルドなどのキャッシュ
+sysinfo.txt
+
+# IDE 関連（VS / Rider）
+.vs/
+.vscode/
+.idea/
+*.code-workspace
+
+# Rider files
+*.sln.iml
+
+# 自動生成された VS/MD/Consulo ソリューションおよびプロジェクト ファイル
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Gradle cache directory
+.gradle/
+
+# Unity3D で生成されたメタ ファイル
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Unity3D で生成されたクラッシュ レポートのファイル
+sysinfo.txt
+
+# ビルド済み
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Crashlytics で生成されたファイル
+crashlytics-build.properties
+
+# MemoryCaptures can get excessive in size.
+# They also could contain extremely sensitive data
+/[Mm]emoryCaptures/
+
+# Recordings can get excessive in size
+/[Rr]ecordings/
