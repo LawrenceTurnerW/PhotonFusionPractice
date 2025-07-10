@@ -7,34 +7,50 @@ using UnityEngine.SceneManagement;
 
 // Photon Fusionのネットワーク管理・プレイヤーのスポーン・入力収集を担当するマネージャー
 public class GameManager : MonoBehaviour, INetworkRunnerCallbacks {
-	[Header("Prefabs")] [SerializeField] private NetworkPrefabRef _playerPrefab;
+	[Header("UI")]
+	[SerializeField] private GameObject _startPanel; // ボタンをまとめたパネル
 
-	[Header("Spawn Points")] [SerializeField]
-	private Transform[] _spawnPoints;
+	[Header("Prefabs")]
+	[SerializeField] private NetworkPrefabRef _playerPrefab;
+
+	[Header("Spawn Points")]
+	[SerializeField] private Transform[] _spawnPoints;
 
 	private NetworkRunner _runner;
 
-	private async void Start() {
-		// NetworkRunnerのインスタンス化
-		_runner = gameObject.AddComponent<NetworkRunner>();
-		gameObject.AddComponent<NetworkSceneManagerDefault>();
+	public void StartHost() {
+		// ホストとしてゲームを開始する
+		StartGame(GameMode.Host);
+	}
 
-		// セッションの開始（ホストとして）
-		await _runner.StartGame(new StartGameArgs {
-			GameMode = GameMode.Host,
+	public void StartClient() {
+		// クライアントとしてゲームに参加する
+		StartGame(GameMode.Client);
+	}
+
+	private async void StartGame(GameMode mode) {
+		// UIパネルを非表示にする
+		if (_startPanel != null) {
+			_startPanel.SetActive(false);
+		}
+
+		_runner = gameObject.AddComponent<NetworkRunner>();
+		var sceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>();
+
+		await _runner.StartGame(new StartGameArgs() {
+			GameMode = mode,
 			SessionName = "TestRoom",
 			Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
-			SceneManager = gameObject.GetComponent<INetworkSceneManager>()
+			SceneManager = sceneManager
 		});
 	}
 
 	// 新しいプレイヤーが参加した時
 	public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) {
 		if (runner.IsServer) {
-			var spawnIndex = player.PlayerId % _spawnPoints.Length;
-			Debug.Log($"Player {player.PlayerId} spawned at index {spawnIndex}");
-			var spawnPosition = _spawnPoints[spawnIndex].position;
-			Debug.Log($"Spawning player at position: {spawnPosition}");
+			// プレイヤーIDに基づいてスポーン地点を決定
+			int spawnIndex = player.PlayerId % _spawnPoints.Length;
+			Vector3 spawnPosition = _spawnPoints[spawnIndex].position;
 			runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 		}
 	}
