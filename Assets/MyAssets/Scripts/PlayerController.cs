@@ -9,18 +9,8 @@ public class PlayerController : NetworkBehaviour {
 	public override void Spawned() {
 		controller = GetComponent<CharacterController>();
 
-		// ★★★ 正しい解決策 ★★★
-		// スポーン時にCharacterControllerを一旦無効にする
+		// スポーン時にCharacterControllerを一旦無効にする(座標ずれ防止)
 		controller.enabled = false;
-
-		// 【重要】手動での座標設定は完全に削除します。
-		// このSpawned()が呼ばれる時点で、FusionのNetworkTransformが
-		// オブジェクトを正しいスポーン地点に配置しようとしています。
-		// その処理を邪魔しないようにします。
-
-		// CharacterControllerを再度有効にする
-		controller.enabled = true;
-		// ★★★ ここまでが修正箇所 ★★★
 
 		if (Object.HasInputAuthority)
 			if (Camera.main != null) {
@@ -28,6 +18,8 @@ public class PlayerController : NetworkBehaviour {
 				Camera.main.transform.localPosition = new Vector3(0, 15, -10);
 				Camera.main.transform.localEulerAngles = new Vector3(45, 0, 0);
 			}
+
+		controller.enabled = true;
 	}
 
 	public override void FixedUpdateNetwork() {
