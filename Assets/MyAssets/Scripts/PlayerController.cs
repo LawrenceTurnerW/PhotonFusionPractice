@@ -2,12 +2,15 @@ using Fusion;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Animator))]
 public class PlayerController : NetworkBehaviour {
 	public float moveSpeed = 8f;
 	private CharacterController controller;
+	private Animator animator;
 
 	public override void Spawned() {
 		controller = GetComponent<CharacterController>();
+		animator = GetComponent<Animator>();
 
 		// スポーン時にCharacterControllerを一旦無効にする(座標ずれ防止)
 		controller.enabled = false;
@@ -28,6 +31,16 @@ public class PlayerController : NetworkBehaviour {
 		if (Runner.IsServer) {
 			if (GetInput(out NetworkInputData data)) {
 				var moveDirection = new Vector3(data.horizontalInput, 0, data.verticalInput).normalized;
+
+				if (moveDirection.sqrMagnitude > 0) {
+					// moveDirectionの長さが0より大きい = 移動している
+					animator.SetBool("IsWalking", true);
+				}
+				else {
+					// 移動していない
+					animator.SetBool("IsWalking", false);
+				}
+
 				controller.Move(moveDirection * moveSpeed * Runner.DeltaTime);
 			}
 		}
