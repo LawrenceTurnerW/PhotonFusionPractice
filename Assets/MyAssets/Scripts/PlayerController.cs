@@ -24,10 +24,12 @@ public class PlayerController : NetworkBehaviour {
 
 	public override void FixedUpdateNetwork() {
 		if (controller == null || !controller.enabled) return;
-
-		if (GetInput(out NetworkInputData data)) {
-			var moveDirection = new Vector3(data.horizontalInput, 0, data.verticalInput).normalized;
-			controller.Move(moveDirection * moveSpeed * Runner.DeltaTime);
+		// サーバー側でのみ入力を処理
+		if (Runner.IsServer) {
+			if (GetInput(out NetworkInputData data)) {
+				var moveDirection = new Vector3(data.horizontalInput, 0, data.verticalInput).normalized;
+				controller.Move(moveDirection * moveSpeed * Runner.DeltaTime);
+			}
 		}
 	}
 }
