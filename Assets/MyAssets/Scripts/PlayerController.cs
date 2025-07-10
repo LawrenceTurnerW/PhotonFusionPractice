@@ -1,32 +1,40 @@
 using Fusion;
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour {
 	public float moveSpeed = 8f;
 	private CharacterController controller;
 
 	public override void Spawned() {
-		// 必要なコンポーネントをここで取得しておく
 		controller = GetComponent<CharacterController>();
 
-		// もしこのオブジェクトが自分自身なら、カメラを自分の子オブジェクトにして、追従するように
-		if (Object.HasInputAuthority) {
-			Camera.main.transform.SetParent(transform, false); // ワールド座標を維持したまま親子関係を設定
-			Camera.main.transform.localPosition = new Vector3(0, 15, -10);
-			Camera.main.transform.localEulerAngles = new Vector3(45, 0, 0);
-		}
+		// ★★★ 正しい解決策 ★★★
+		// スポーン時にCharacterControllerを一旦無効にする
+		controller.enabled = false;
+
+		// 【重要】手動での座標設定は完全に削除します。
+		// このSpawned()が呼ばれる時点で、FusionのNetworkTransformが
+		// オブジェクトを正しいスポーン地点に配置しようとしています。
+		// その処理を邪魔しないようにします。
+
+		// CharacterControllerを再度有効にする
+		controller.enabled = true;
+		// ★★★ ここまでが修正箇所 ★★★
+
+		if (Object.HasInputAuthority)
+			if (Camera.main != null) {
+				Camera.main.transform.SetParent(transform, false);
+				Camera.main.transform.localPosition = new Vector3(0, 15, -10);
+				Camera.main.transform.localEulerAngles = new Vector3(45, 0, 0);
+			}
 	}
 
 	public override void FixedUpdateNetwork() {
-		// Fusion のネットワークTICKごとに、全プレイヤーで実行される物理更新ループ
+		if (controller == null || !controller.enabled) return;
 
-		// プレイヤーからの入力を取得し、キャラクターを移動させる
 		if (GetInput(out NetworkInputData data)) {
-			// 入力値から移動方向を計算し、正規化(normalize)して速度が一定になるように
 			var moveDirection = new Vector3(data.horizontalInput, 0, data.verticalInput).normalized;
-
-			// CharacterController を使って移動させる
-			// Runner.DeltaTime はネットワークの1TICKあたりの時間
 			controller.Move(moveDirection * moveSpeed * Runner.DeltaTime);
 		}
 	}
